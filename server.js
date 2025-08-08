@@ -4,8 +4,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const itemRoutes = require('./routes/itemRoutes');
-const uploadMiddleware = require('./middleware/uploadMiddleware'); // 👈 THIS
-const { uploadItem } = require('./controllers/itemController');
+const uploadMiddleware = require('./middleware/uploadMiddleware'); // confirm if you still need this or using cloudinary upload
 
 dotenv.config();
 
@@ -14,17 +13,21 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Test route for quick check
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API test route working' });
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
 
-// Image upload route (should come AFTER uploadMiddleware is initialized)
-app.post('/api/items/upload', uploadMiddleware.single('image'), uploadItem); // ✅ FIXED
+// If you still want this separate upload route (optional, as handled in itemRoutes now)
+// app.post('/api/items/upload', uploadMiddleware.single('image'), uploadItem);
 
 // Connect to MongoDB and start server
 mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+  // useNewUrlParser and useUnifiedTopology deprecated in new drivers, so can be removed
 })
 .then(() => {
   console.log('MongoDB connected');
