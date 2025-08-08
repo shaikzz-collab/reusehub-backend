@@ -1,56 +1,37 @@
-require('dotenv').config();
-const path = require("path");
-
-const connectDB = require("./config/db");
 const express = require('express');
-const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 const cors = require('cors');
-
-// Load environment variables
-dotenv.config();
-
-// Create Express app
-const app = express();
-connectDB();
-// Middleware
-app.use(cors()); // Enable CORS for frontend access
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); // Parse JSON bodies
-
-// Import routes
 const authRoutes = require('./routes/authRoutes');
 const itemRoutes = require('./routes/itemRoutes');
-
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch((err) => {
-    console.error('❌ MongoDB connection error:', err.message);
-    process.exit(1);
-  });
-
-// Define routes
-app.use('/api/auth', authRoutes);
-app.use('/api/items', require('./routes/itemRoutes'));
-app.post('/api/items/upload', upload.single('image'), uploadItem);
-const upload = require('../middleware/uploadMiddleware');
+const uploadMiddleware = require('./middleware/uploadMiddleware'); // 👈 THIS
 const { uploadItem } = require('./controllers/itemController');
 
-// Static folder for uploads
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+dotenv.config();
 
+const app = express();
 
+app.use(cors());
+app.use(express.json());
 
-// Default route
-app.get('/', (req, res) => {
-  res.send('ReUseHub API is running...');
-});
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/items', itemRoutes);
 
-// Start server on 192.168.1.100 for LAN access
-const PORT = process.env.PORT || 5000;
-const HOST = '192.168.1.100'; // Your local IP
+// Image upload route (should come AFTER uploadMiddleware is initialized)
+app.post('/api/items/upload', uploadMiddleware.single('image'), uploadItem); // ✅ FIXED
 
-app.listen(PORT, HOST, () => {
-  console.log(`🚀 Server running at http://${HOST}:${PORT}`);
+// Connect to MongoDB and start server
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => {
+  console.log('MongoDB connected');
+  app.listen(process.env.PORT || 5000, () => {
+    console.log(`Server running on port ${process.env.PORT || 5000}`);
+  });
+})
+.catch((err) => {
+  console.error('MongoDB connection error:', err);
 });
