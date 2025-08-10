@@ -21,7 +21,7 @@ app.get('/api/test', (req, res) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
-
+app.use('/api/items/upload', itemRoutes);
 // If you still want this separate upload route (optional, as handled in itemRoutes now)
 // app.post('/api/items/upload', uploadMiddleware.single('image'), uploadItem);
 
