@@ -1,37 +1,40 @@
 const Item = require('../models/itemModel');
 
+
 const uploadItem = async (req, res) => {
   try {
     const { name, description, category, coordinates } = req.body;
 
     if (!name || !description || !category || !coordinates) {
-      return res.status(400).json({ message: 'Missing required fields' });
+      return res.status(400).json({ message: 'All fields are required' });
     }
 
-    const parsedCoordinates = JSON.parse(coordinates);
+    
+    if (!req.file) {
+      return res.status(400).json({ message: 'Image is required' });
+    }
 
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    console.log('Uploaded file info:', req.file); // debug
+
+    // Use the Cloudinary URL directly
+    const imageUrl = req.file.path;
 
     const newItem = new Item({
       name,
       description,
       category,
-      imageUrl,
-      coordinates: {
-        latitude: parseFloat(parsedCoordinates.latitude),
-        longitude: parseFloat(parsedCoordinates.longitude),
-      },
+      coordinates: JSON.parse(coordinates),
+      image: imageUrl,
       user: req.userId,
     });
 
-    await newItem.save();
-    res.status(201).json(newItem);
+    const savedItem = await newItem.save();
+    res.status(201).json(savedItem);
   } catch (error) {
-    console.error('Upload error:', error.message);
+    console.error('Error uploading item:', error);
     res.status(500).json({ message: 'Server error during upload' });
   }
 };
-
 
 
 const getAllItems = async (req, res) => {
