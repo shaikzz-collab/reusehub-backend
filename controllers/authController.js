@@ -79,7 +79,7 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   registerUser,
   loginUser,
 };

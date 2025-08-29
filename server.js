@@ -1,15 +1,15 @@
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import connectDB from "./config/db.js";
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const connectDB = require("./config/db");
 
-import authRoutes from "./routes/authRoutes.js";
-import itemRoutes from "./routes/itemRoutes.js";
+const authRoutes = require("./routes/authRoutes");
+const itemRoutes = require("./routes/itemRoutes");
 
 dotenv.config();
 const app = express();
 
-// ✅ Connect DB
+// ✅ Connect to MongoDB
 connectDB();
 
 // ✅ Middleware

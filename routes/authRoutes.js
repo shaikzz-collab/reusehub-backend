@@ -14,4 +14,4 @@ router.get('/test', (req, res) => {
   res.json({ message: 'Auth routes working' });
 });
 
-module.exports = router;
+export default router;
