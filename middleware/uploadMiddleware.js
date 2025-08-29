@@ -1,17 +1,25 @@
-const multer = require('multer');
-const path = require('path');
+import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
-// Set up storage engine
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // Make sure this folder exists
-  },
-  filename: function (req, file, cb) {
-    const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, uniqueName + path.extname(file.originalname));
+// ✅ Cloudinary Config
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// ✅ Storage engine for multer
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "reusehub_items", // all images will go inside this folder
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+    transformation: [{ width: 800, height: 800, crop: "limit" }],
   },
 });
 
+// ✅ Multer middleware
 const upload = multer({ storage });
 
-module.exports = upload; // ✅ FIXED EXPORT
+export default upload;

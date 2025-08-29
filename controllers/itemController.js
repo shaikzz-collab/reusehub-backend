@@ -1,110 +1,62 @@
-const Item = require('../models/itemModel');
+import Item from "../models/itemModel.js";
 
-
-const uploadItem = async (req, res) => {
+// @desc Upload a new item
+export const uploadItem = async (req, res) => {
   try {
-    const { name, description, category, coordinates } = req.body;
+    const { name, description, category, mobile, coordinates } = req.body;
 
-    if (!name || !description || !category || !coordinates) {
-      return res.status(400).json({ message: 'All fields are required' });
+    if (!name || !description || !category || !mobile || !coordinates) {
+      return res.status(400).json({ message: "All fields are required" });
     }
 
-    
-    if (!req.file) {
-      return res.status(400).json({ message: 'Image is required' });
+    let parsedCoords;
+    try {
+      parsedCoords =
+        typeof coordinates === "string"
+          ? JSON.parse(coordinates)
+          : coordinates;
+    } catch {
+      return res.status(400).json({ message: "Invalid coordinates format" });
     }
 
-    console.log('Uploaded file info:', req.file); // debug
-
-    // Use the Cloudinary URL directly
-    const imageUrl = req.file.path;
+    const imageUrl = req.file ? req.file.path : null;
 
     const newItem = new Item({
       name,
       description,
       category,
-      coordinates: JSON.parse(coordinates),
-      image: imageUrl,
-      user: req.userId,
+      mobile,
+      imageUrl,
+      coordinates: {
+        latitude: parsedCoords.lat || parsedCoords.latitude,
+        longitude: parsedCoords.lng || parsedCoords.longitude,
+      },
+      user: req.user.id,
     });
 
-    const savedItem = await newItem.save();
-    res.status(201).json(savedItem);
+    await newItem.save();
+    res.status(201).json(newItem);
   } catch (error) {
-    console.error('Error uploading item:', error);
-    res.status(500).json({ message: 'Server error during upload' });
+    console.error("Error uploading item:", error.message);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-
-const getAllItems = async (req, res) => {
+// @desc Get all items
+export const getAllItems = async (req, res) => {
   try {
-    const items = await Item.find().sort({ createdAt: -1 });
+    const items = await Item.find()
+      .populate("user", "name email")
+      .sort({ createdAt: -1 });
+
     res.json(items);
   } catch (error) {
-    res.status(500).json({ message: 'Server error while fetching items' });
-  }
-};
-
-
-
-
-// @desc    Get a single item by ID
-// @route   GET /api/items/:id
-// @access  Public
-const getItemById = async (req, res) => {
-  try {
-    const item = await Item.findById(req.params.id).populate('user', 'name email');
-    if (!item) {
-      return res.status(404).json({ message: 'Item not found' });
-    }
-    res.status(200).json(item);
-  } catch (error) {
-    console.error('Get Item Error:', error.message);
-    res.status(500).json({ message: 'Server error while fetching item' });
-  }
-};
-
-// @desc    Delete an item (if owned by user)
-// @route   DELETE /api/items/:id
-// @access  Private
-const deleteItem = async (req, res) => {
-  try {
-    const item = await Item.findById(req.params.id);
-    if (!item) {
-      return res.status(404).json({ message: 'Item not found' });
-    }
-
-    // Ensure the user deleting is the owner
-    if (item.user.toString() !== req.user.id) {
-      return res.status(401).json({ message: 'Not authorized to delete this item' });
-    }
-
-    await item.remove();
-    res.status(200).json({ message: 'Item deleted successfully' });
-  } catch (error) {
-    console.error('Delete Item Error:', error.message);
-    res.status(500).json({ message: 'Server error while deleting item' });
-  }
-};
-
-// @desc    Get items uploaded by current user
-// @route   GET /api/items/my
-// @access  Private
-const getUserItems = async (req, res) => {
-  try {
-    const items = await Item.find({ user: req.user.id });
-    res.status(200).json(items);
-  } catch (error) {
-    console.error('User Items Error:', error.message);
-    res.status(500).json({ message: 'Server error while fetching user items' });
+    console.error("Error fetching items:", error.message);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 module.exports = {
   uploadItem,
   getAllItems,
-  getItemById,
-  deleteItem,
-  getUserItems,
 };

@@ -1,15 +1,13 @@
 {
-  "name": "backend",
+  "name": "reusehub-backend",
   "version": "1.0.0",
-  "description": "Node.js + Express server for item listings, auth, and AI categorization.",
-  "main": "index.js",
+  "description": "Node.js + Express backend for ReUseHub",
+  "type": "module",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cloudinary": "^1.41.3",

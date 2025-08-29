@@ -1,4 +1,3 @@
-// server.js
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -10,21 +9,17 @@ import itemRoutes from "./routes/itemRoutes.js";
 dotenv.config();
 const app = express();
 
-// ✅ Connect to MongoDB
+// ✅ Connect DB
 connectDB();
 
 // ✅ Middleware
-app.use(
-  express.json({ limit: "20mb" }) // increase payload size for images
-);
-app.use(
-  express.urlencoded({ extended: true, limit: "20mb" })
-);
+app.use(express.json({ limit: "20mb" }));
+app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 app.use(cors());
 
 // ✅ Routes
-app.use("/api/auth", authRoutes);   // /api/auth/login , /api/auth/register
-app.use("/api/items", itemRoutes); // /api/items
+app.use("/api/auth", authRoutes);
+app.use("/api/items", itemRoutes);
 
 // ✅ Health check
 app.get("/", (req, res) => {
