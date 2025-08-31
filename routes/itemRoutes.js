@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const { uploadItem, getAllItems } = require("../controllers/itemController");
 const { protect } = require("../middleware/authMiddleware");
-const { upload, debugUpload } = require("../cloudinary");
+const upload = require("../cloudinary"); // ✅ import directly, not destructure
 
 // POST /api/items → protected route with image upload
-router.post("/", protect, upload.single("image"), debugUpload, uploadItem);
+router.post("/", protect, upload.single("image"), uploadItem);
 
 // GET /api/items → fetch all items
 router.get("/", getAllItems);
