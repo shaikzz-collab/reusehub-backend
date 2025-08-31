@@ -3,7 +3,6 @@ const router = express.Router();
 const { uploadItem, getAllItems } = require("../controllers/itemController");
 const { protect } = require("../middleware/authMiddleware");
 const { upload, debugUpload } = require("../cloudinary");
-const cloudinary = require("cloudinary").v2;
 
 // POST /api/items → protected route with image upload
 router.post("/", protect, upload.single("image"), debugUpload, uploadItem);
@@ -11,7 +10,7 @@ router.post("/", protect, upload.single("image"), debugUpload, uploadItem);
 // GET /api/items → fetch all items
 router.get("/", getAllItems);
 
-// 🧪 Test Cloudinary upload only (no DB save, no auth required)
+// 🧪 Cloudinary test upload route
 router.post("/upload-test", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
@@ -21,6 +20,7 @@ router.post("/upload-test", upload.single("image"), async (req, res) => {
     res.json({
       message: "Cloudinary upload successful",
       fileUrl: req.file.path,
+      body: req.body,
     });
   } catch (err) {
     console.error("❌ Cloudinary Upload Error:", err.message);
