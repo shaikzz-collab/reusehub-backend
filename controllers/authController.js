@@ -12,7 +12,8 @@ const generateToken = (id) => {
 // @access  Public
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, avatar } = req.body;
+
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Please provide all fields" });
@@ -30,6 +31,7 @@ exports.registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+     avatar: avatar || undefined, 
     });
 
     if (user) {
@@ -37,6 +39,7 @@ exports.registerUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+         avatar: user.avatar,
         token: generateToken(user._id), // ✅ always send token
       });
     } else {
@@ -65,11 +68,13 @@ exports.loginUser = async (req, res) => {
     }
 
     res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token: generateToken(user._id), // ✅ token included here too
-    });
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  avatar: user.avatar,
+  token: generateToken(user._id),
+});
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
