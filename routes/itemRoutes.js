@@ -32,5 +32,6 @@ router.post("/upload-test", upload.single("image"), async (req, res) => {
 router.get("/test", (req, res) => {
   res.json({ message: "Item routes working ✅" });
 });
-router.put("/:id", protect, updateItem);
+// PUT /api/items/:id → update item (with optional new image)
+router.put("/:id", protect, upload.single("image"), updateItem);
 module.exports = router;

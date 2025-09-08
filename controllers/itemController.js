@@ -80,17 +80,24 @@ exports.updateItem = async (req, res) => {
       return res.status(404).json({ message: "Item not found" });
     }
 
-    // ensure only the owner can update
+    // ✅ Ensure only owner can update
     if (item.user.toString() !== req.user.id) {
       return res.status(401).json({ message: "Not authorized" });
     }
 
-    // update fields
+    // ✅ Update text fields
     item.name = req.body.name || item.name;
     item.description = req.body.description || item.description;
     item.category = req.body.category || item.category;
     item.mobile = req.body.mobile || item.mobile;
-    item.image = req.body.image || item.image;
+
+    // ✅ If new image uploaded, update it
+    if (req.file && req.file.path) {
+      item.image = req.file.path; // Cloudinary URL
+    } else if (req.body.image) {
+      // fallback if user provides URL
+      item.image = req.body.image;
+    }
 
     const updatedItem = await item.save();
     res.json(updatedItem);
