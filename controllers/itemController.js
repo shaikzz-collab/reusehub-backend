@@ -72,3 +72,30 @@ exports.getAllItems = async (req, res) => {
     res.status(500).json({ message: "Server error: " + err.message });
   }
 };
+exports.updateItem = async (req, res) => {
+  try {
+    const item = await Item.findById(req.params.id);
+
+    if (!item) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+
+    // ensure only the owner can update
+    if (item.user.toString() !== req.user.id) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    // update fields
+    item.name = req.body.name || item.name;
+    item.description = req.body.description || item.description;
+    item.category = req.body.category || item.category;
+    item.mobile = req.body.mobile || item.mobile;
+    item.image = req.body.image || item.image;
+
+    const updatedItem = await item.save();
+    res.json(updatedItem);
+  } catch (err) {
+    console.error("Update error:", err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+};

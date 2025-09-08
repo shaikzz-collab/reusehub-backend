@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { uploadItem, getAllItems } = require("../controllers/itemController");
+const { uploadItem, getAllItems, updateItem } = require("../controllers/itemController");
 const { protect } = require("../middleware/authMiddleware");
 const upload = require("../cloudinary"); // ✅ import directly, not destructure
 
@@ -32,5 +32,5 @@ router.post("/upload-test", upload.single("image"), async (req, res) => {
 router.get("/test", (req, res) => {
   res.json({ message: "Item routes working ✅" });
 });
-
+router.put("/:id", protect, updateItem);
 module.exports = router;
